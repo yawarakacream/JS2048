@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ja" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.0/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <title>2048</title>
+</head>
+
+<body>
+
+    <div class="ui hidden divider"></div>
+
+    <div id="game" class="ui grid">
+
+        <div class="four wide column" style="position: sticky">
+
+            <!-- header -->
+            <h1 class="ui center aligned icon header">
+                <i class="cube icon"></i>
+                2048
+            </h1>
+
+            <!-- settings -->
+            <div class="ui center aligned container">
+
+                <div class="ui huge buttons">
+
+                    <button :class="['ui', 'icon', 'button', { 'disabled': size <= constants.minSize }]" @click="toSmaller">
+                        <i class="left chevron icon"></i>
+                    </button>
+
+                    <button class="ui button" @click="start">
+                      {{ size }}
+                    </button>
+
+                    <button :class="['ui', 'icon', 'button', { 'disabled': constants.maxSize <= size }]"  @click="toBigger">
+                        <i class="right chevron icon"></i>
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- game -->
+        <div class="eight wide center aligned column">
+
+            <div :class="['ui', constants.intToEng[size], 'column', 'internally', 'celled', 'grid']">
+                <div class="row" v-for="(_, i) in size">
+                    <div class="column" v-for="(_, j) in size">
+                        <div class="piece" :style="{ 'background': '#' + getPieceColor(game.getPiece(i, j)) }">
+                            <span :style="{ 'color': 0 == game.getPiece(i, j) ? '#FFFFFF' : '#000000' }">
+                                {{ 2 ** game.getPiece(i, j) }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- controller -->
+        <div class="four wide column">
+
+            <div class="ui center aligned container">
+                <button class="ui massive circular icon button" @click="moveUp"><i class="arrow up icon"></i></button>
+            </div>
+            <div class="ui center aligned container">
+                <button class="ui massive circular icon button" @click="moveLeft"><i class="arrow left icon"></i></button>
+                <button class="ui massive circular icon button" @click="moveRight"><i class="arrow right icon"></i></button>
+            </div>
+            <div class="ui center aligned container">
+                <button class="ui massive circular icon button" @click="moveDown"><i class="arrow down icon"></i></button>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="./game.js"></script>
+    <script>
+
+        const vm = new Vue({
+            el: '#game',
+            data: {
+                size: 4,
+                game: null,
+                constants: {
+                    minSize: 2,
+                    maxSize: 8,
+                    intToEng: [undefined, undefined, 'two', 'three', 'four', 'five', 'six', 'seven', 'eight']
+                },
+            },
+            created: function() {
+                this.start();
+            },
+            methods: {
+                toSmaller: function() {
+                    if (this.size <= this.constants.minSize)
+                      return;
+                    this.size--;
+                    this.start();
+                },
+                toBigger: function() {
+                    if (this.constants.maxSize <= this.size)
+                        return;
+                    this.size++;
+                    this.start();
+                },
+                start: function() {
+                    this.game = new Game(this.size);
+                },
+                moveUp: function() {
+                    this.game.move(this.game.pieceMovementHandlers.up);
+                },
+                moveDown: function() {
+                    this.game.move(this.game.pieceMovementHandlers.down);
+                },
+                moveLeft: function() {
+                    this.game.move(this.game.pieceMovementHandlers.left);
+                },
+                moveRight: function() {
+                    this.game.move(this.game.pieceMovementHandlers.right);
+                },
+                getPieceColor: function(box) {
+                    // 適当に生成
+                    return (0xFFFFFF - 0xD000A * box * 2).toString(16);
+                }
+            },
+        });
+
+        window.document.onkeyup = e => {
+
+            if (vm.game === null)
+                return;
+
+            switch(e.key) {
+                case 'ArrowUp':
+                    vm.moveUp();
+                    break;
+                case 'ArrowDown':
+                    vm.moveDown();
+                    break;
+                case 'ArrowLeft':
+                    vm.moveLeft();
+                    break;
+                case 'ArrowRight':
+                    vm.moveRight();
+                    break;
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>

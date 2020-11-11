@@ -1,0 +1,8 @@
+
+.piece {
+    display: inline-block;
+    width: 100%;
+    padding-top: 40%;
+    padding-bottom: 40%;
+    font-size: 30px;
+}
